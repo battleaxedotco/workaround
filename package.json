@@ -1,5 +1,5 @@
 {
-  "name": "gideon",
+  "name": "workaround",
   "version": "1.0.0",
   "description": "`evalScript` implementation to bypass CORS restrictions on new Adobe applications for use in `<iframe>` elements and bombino templates.",
   "main": "index.js",

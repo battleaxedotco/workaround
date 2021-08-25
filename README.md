@@ -4,12 +4,12 @@
 
 ```bash
 # Installation
-npm i @inventsable/gideon
+npm i workaround
 ```
 
 ```js
 // Usage:
-import { evalScript } from "@inventsable/gideon";
+import { evalScript } from "workaround";
 
 // Within async/await
 let result = await evalScript(`
