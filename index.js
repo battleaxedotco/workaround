@@ -25,9 +25,10 @@ async function vanillaEvalscript(text, debug = false) {
 
 async function evalScript(text, debug = false) {
   if (debug) {
+    console.log(document.location.href);
     console.log("Invoking evalScript");
   }
-  if (/file:\/\//i.test(document.location.origin.href)) {
+  if (/file:\/\//i.test(document.location.href)) {
     return await vanillaEvalscript(text, debug);
   }
   if (window.parent || /localhost/i.test(document.location.href)) {
