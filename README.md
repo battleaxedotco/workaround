@@ -1,4 +1,4 @@
-# gideon
+# workaround
 
 `evalScript` implementation to bypass CORS restrictions on new Adobe applications for use in `<iframe>` elements and bombino templates.
 

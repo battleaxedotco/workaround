@@ -27,6 +27,9 @@ async function evalScript(text, debug = false) {
   if (debug) {
     console.log("Invoking evalScript");
   }
+  if (/file:\/\//i.test(document.location.origin.href)) {
+    return await vanillaEvalscript(text, debug);
+  }
   if (window.parent || /localhost/i.test(document.location.href)) {
     let result = await parentEvalScript(text, debug);
     let target = document.querySelector("iframe");
