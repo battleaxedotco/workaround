@@ -71,7 +71,27 @@ async function evalScript(text, debug = false) {
       console.log("Don't bounce, but nowhere to go?");
       console.log("FROM:", document.location.href);
       console.log("RESULT:", result);
-      if (result) return result;
+
+      // Why is this happening? Event duplication seems to be going on, or the original
+      // listener is being deconstructed from catching a different event prior to the callback
+      return result && result + "" !== "undefined"
+        ? result
+        : new Promise((resolve, reject) => {
+            window.addEventListener(
+              "message",
+              (evt) => {
+                if (debug) {
+                  console.log(
+                    "FALLBACK RESULT:",
+                    evt.data.data || evt.data.evalScriptResult
+                  );
+                  console.log(evt.data);
+                }
+                resolve(evt.data.evalScriptResult || evt.data.data);
+              },
+              { once: true }
+            );
+          });
     }
   } else {
     if (debug) {
@@ -111,7 +131,7 @@ async function parentEvalScript(text, debug = false) {
         }
         resolve(evt.data.evalScriptResult || evt.data.data);
       },
-      { once: true }
+      { once: false }
     );
   });
 }
