@@ -68,11 +68,9 @@ async function evalScript(text, debug = false) {
       );
       return result;
     } else {
-      if (debug) {
-        console.log("Don't bounce, but nowhere to go?");
-        console.log("FROM:", document.location.href);
-        console.log("RESULT:", result);
-      }
+      console.log("Don't bounce, but nowhere to go?");
+      console.log("FROM:", document.location.href);
+      console.log("RESULT:", result);
       if (result) return result;
     }
   } else {
