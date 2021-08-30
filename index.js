@@ -51,7 +51,7 @@ async function evalScript(text, debug = false) {
         "*"
       );
       return result;
-    } else {
+    } else if (target) {
       if (debug) {
         console.log("Don't bounce, this is last depth iframe");
         console.log(
@@ -60,7 +60,15 @@ async function evalScript(text, debug = false) {
           /localhost/i.test(document.location.href) && target
         );
       }
+      target.contentWindow.postMessage(
+        {
+          evalScriptResult: result,
+        },
+        "*"
+      );
       return result;
+    } else {
+      console.log("Don't bounce, but nowhere to go?");
     }
   } else {
     if (debug) {
