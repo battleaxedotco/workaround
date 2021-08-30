@@ -131,7 +131,7 @@ async function parentEvalScript(text, debug = false) {
         }
         resolve(evt.data.evalScriptResult || evt.data.data);
       },
-      { once: false }
+      { once: true }
     );
   });
 }
