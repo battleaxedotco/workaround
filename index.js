@@ -68,9 +68,13 @@ async function evalScript(text, debug = false) {
       );
       return result;
     } else {
-      console.log("Don't bounce, but nowhere to go?");
-      console.log("FROM:", document.location.href);
-      console.log("RESULT:", result);
+      if (debug) {
+        console.log(
+          "Don't bounce, but nowhere to go? Construct a listener in case a separate event was intercepted"
+        );
+        console.log("FROM:", document.location.href);
+        console.log("RESULT:", result);
+      }
 
       // Why is this happening? Event duplication seems to be going on, or the original
       // listener is being deconstructed from catching a different event prior to the callback
