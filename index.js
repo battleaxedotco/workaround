@@ -53,7 +53,7 @@ async function evalScript(text, debug = false) {
       return result;
     } else if (target) {
       if (debug) {
-        console.log("Don't bounce, this is last depth iframe");
+        console.log("This is last depth iframe");
         console.log(
           document.location.href,
           target,
@@ -68,7 +68,12 @@ async function evalScript(text, debug = false) {
       );
       return result;
     } else {
-      console.log("Don't bounce, but nowhere to go?");
+      if (debug) {
+        console.log("Don't bounce, but nowhere to go?");
+        console.log("FROM:", document.location.href);
+        console.log("RESULT:", result);
+      }
+      if (result) return result;
     }
   } else {
     if (debug) {
