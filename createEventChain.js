@@ -31,15 +31,19 @@ window.addEventListener("message", (msg) => {
     evalScript(msg.data.evalScript).then((result) => {
       if (DEBUG && result + "" !== "undefined") {
         console.log("RESULT:");
-        console.log(result);
-        console.log(result + "" == "undefined");
-        console.log(msg.origin);
+        console.log(result, msg.data.uuid, msg.origin);
+        console.log(msg.data.uuid);
       }
       /**
        * This document should be barebones if index-dev.html has not been altered, so querying an iframe should be trivial
        */
       let target = document.querySelector("iframe");
+      console.log(target);
       if (target && target.contentWindow) {
+        console.log("SEND TO CHILD:", {
+          evalScriptResult: result,
+          uuid: msg.data.uuid,
+        });
         // We then post a message back to the child with the result and original uuid
         target.contentWindow.postMessage(
           {

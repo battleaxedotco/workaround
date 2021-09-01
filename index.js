@@ -33,7 +33,7 @@ async function evalScript(text, options) {
  */
 async function parentEvalScript(text, options) {
   return new Promise((resolve, reject) => {
-    const uuid = options && options.uuid ? options.uuid : getUUID();
+    let uuid = options && options.uuid ? options.uuid : getUUID();
     parent.postMessage(
       {
         evalScript: text,
@@ -54,20 +54,27 @@ async function parentEvalScript(text, options) {
     window.addEventListener(
       "message",
       (parentReturn = (evt) => {
+        console.log(evt);
+        if (evt.data.uuid) {
+          console.log("MATCH:", evt.data.uuid == uuid);
+        }
         if (
           evt.data &&
-          evt.data.evalScriptResult &&
+          (evt.data.evalScriptResult ||
+            evt.data.evalScriptResult == false ||
+            evt.data.data ||
+            evt.data.data == false) &&
           evt.data.uuid &&
           evt.data.uuid == uuid
         ) {
           if (DEBUG || (options && options.debug)) {
             console.log(
               "RECEIVED CORRECT EVALSCRIPT RESULT:",
-              evt.data.evalScriptResult
+              evt.data.evalScriptResult || evt.data.data
             );
           }
           window.removeEventListener("message", parentReturn); // We need to remove this listener
-          resolve(evt.data.evalScriptResult);
+          resolve(evt.data.evalScriptResult || evt.data.data);
         } else {
           /**
            * I've continually gotten duplicated results, where the parent is posting multiple times to the child.
@@ -76,8 +83,10 @@ async function parentEvalScript(text, options) {
            *
            * This was causing a lot of desync issues, where my code was returning false results (or prior results).
            */
-          if (DEBUG || (options && options.debug))
-            console.error(`NO MATCH ON UUID "${uuid}"`, evt);
+          if (DEBUG || (options && options.debug)) {
+            console.log(evt.data.uuid == uuid);
+            console.error(`"${evt.data.uuid}" !== "${uuid}"?`, evt);
+          }
         }
       })
     );
