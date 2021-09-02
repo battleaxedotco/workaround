@@ -37,18 +37,20 @@ window.addEventListener("message", (msg) => {
       /**
        * This document should be barebones if index-dev.html has not been altered, so querying an iframe should be trivial
        */
-      let target = document.querySelector("iframe");
-      console.log(target);
+      let target = getIframe();
       if (target && target.contentWindow) {
-        console.log("SEND TO CHILD:", {
-          evalScriptResult: result,
-          uuid: msg.data.uuid,
-        });
+        if (DEBUG)
+          console.log("SEND TO CHILD:", {
+            evalScriptResult: result,
+            uuid: msg.data.uuid,
+            origin: msg.data.origin,
+          });
         // We then post a message back to the child with the result and original uuid
         target.contentWindow.postMessage(
           {
             evalScriptResult: result,
             uuid: msg.data.uuid,
+            origin: msg.data.origin,
           },
           msg.origin
         );
@@ -56,8 +58,65 @@ window.addEventListener("message", (msg) => {
         console.error("Could not find iframe");
       }
     });
+  } else if (msg.data && msg.data.uuid && msg.data.type) {
+    let target = getIframe();
+    if (DEBUG) {
+      console.log("");
+      console.log("ROOT RECEIVED A MENU MESSAGE:");
+      console.log(msg.data.type);
+      console.log("");
+    }
+    if (msg.data.type == "setContextMenu") {
+      if (DEBUG) console.log("BUILDING CONTEXT MENU");
+      window.__adobe_cep__.invokeAsync(
+        msg.data.params[0],
+        msg.data.params[1],
+        (evt) => {
+          if (DEBUG) {
+            console.log("CLICKED:");
+            console.log(evt);
+            console.log(target);
+          }
+          target.contentWindow.postMessage(
+            {
+              type: "contextMenuClicked",
+              uuid: msg.data.uuid,
+              origin: msg.data.origin,
+              menuItem: evt,
+            },
+            msg.origin
+          );
+        }
+      );
+    } else if (msg.data.type == "setPanelFlyoutMenu") {
+      if (DEBUG) console.log("SET FLYOUT MENU?");
+      window.__adobe_cep__.invokeSync("setPanelFlyoutMenu", msg.data.params[1]);
+      window.__adobe_cep__.addEventListener(
+        "com.adobe.csxs.events.flyoutMenuClicked",
+        (evt) => {
+          if (DEBUG) {
+            console.log("FLYOUT CLICK:");
+            console.log(evt);
+          }
+          target.contentWindow.postMessage(
+            {
+              type: "contextMenuClicked",
+              uuid: msg.data.uuid,
+              origin: msg.data.origin,
+              menuItem: evt,
+            },
+            msg.origin
+          );
+        }
+      );
+    }
   }
 });
+
+function getIframe() {
+  let target = document.querySelector("iframe");
+  return target || null;
+}
 
 // Nearly identical to the vanilla evalScript from brutalism and cluecumber here, but using the full reference to host instead of CEP-Spy
 // We know this can always be a vanilla evalScript since this should only exist in the startup / onload files of our raw panel HTML

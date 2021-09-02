@@ -21,7 +21,24 @@ async function evalScript(text, options) {
   // If this isn't in an iframe, treat it like some normal evalScript call
   if (isVanillaContext()) return await vanillaEvalscript(text, options);
   // Otherwise, we need to use postMessage() between iframe and parent to evalScript correctly
-  else return await parentEvalScript(text, options);
+  else {
+    if (/localhost/i.test(document.location.href)) {
+      /**
+       * @NOTE - If supporting recursive iframes, here's the place to do it.
+       * This can't be localhost checking though -- it should contain the origin in the message
+       * and compare the msg.origin to document.location.href.
+       *
+       * It's possible that a user would be sending from 8080 > 9090 > file (root) > 9090 > 8080.
+       * Can't just assume that localhost is the dev context, it may itself be an iframe within dev
+       */
+      if (DEBUG) {
+        console.log("What to do?");
+        console.log(text);
+        console.log(document.location.href);
+      }
+      return await parentEvalScript(text, options);
+    } else return await parentEvalScript(text, options);
+  }
 }
 
 /**
@@ -38,6 +55,8 @@ async function parentEvalScript(text, options) {
       {
         evalScript: text,
         uuid: uuid,
+        origin:
+          options && options.origin ? options.origin : document.location.href,
       },
       "*"
     );
@@ -137,6 +156,10 @@ async function vanillaEvalscript(text, debug = false) {
  */
 function isVanillaContext() {
   return /^file:\/\//i.test(document.location.href);
+}
+
+function isDevContext() {
+  return /localhost/i.test(document.location.href);
 }
 
 /**
