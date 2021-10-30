@@ -27,6 +27,7 @@ window.addEventListener("message", (msg) => {
     console.log("Outer shell receives message");
     console.log(msg);
   }
+  // A default message will arrive with an "evalScript" key for any child evalScript invocations:
   if (msg.data && msg.data.evalScript && msg.data.uuid) {
     evalScript(msg.data.evalScript).then((result) => {
       if (DEBUG && result + "" !== "undefined") {
@@ -58,6 +59,8 @@ window.addEventListener("message", (msg) => {
         console.error("Could not find iframe");
       }
     });
+
+    // Otherwise this may be for a menu like a context or flyout option, containing uuid and type keys
   } else if (msg.data && msg.data.uuid && msg.data.type) {
     let target = getIframe();
     if (DEBUG) {
@@ -66,6 +69,7 @@ window.addEventListener("message", (msg) => {
       console.log(msg.data.type);
       console.log("");
     }
+    // If the type is Context menu:
     if (msg.data.type == "setContextMenu") {
       if (DEBUG) console.log("BUILDING CONTEXT MENU");
       window.__adobe_cep__.invokeAsync(
@@ -88,28 +92,30 @@ window.addEventListener("message", (msg) => {
           );
         }
       );
-    } else if (msg.data.type == "setPanelFlyoutMenu") {
-      if (DEBUG) console.log("SET FLYOUT MENU?");
-      window.__adobe_cep__.invokeSync("setPanelFlyoutMenu", msg.data.params[1]);
-      window.__adobe_cep__.addEventListener(
-        "com.adobe.csxs.events.flyoutMenuClicked",
-        (evt) => {
-          if (DEBUG) {
-            console.log("FLYOUT CLICK:");
-            console.log(evt);
-          }
-          target.contentWindow.postMessage(
-            {
-              type: "contextMenuClicked",
-              uuid: msg.data.uuid,
-              origin: msg.data.origin,
-              menuItem: evt,
-            },
-            msg.origin
-          );
-        }
-      );
     }
+    // If the type is flyout menu:
+    // } else if (msg.data.type == "setPanelFlyoutMenu") {
+    //   if (DEBUG) console.log("SET FLYOUT MENU?");
+    //   window.__adobe_cep__.invokeSync("setPanelFlyoutMenu", msg.data.params[1]);
+    //   window.__adobe_cep__.addEventListener(
+    //     "com.adobe.csxs.events.flyoutMenuClicked",
+    //     (evt) => {
+    //       if (DEBUG) {
+    //         console.log("FLYOUT CLICK:");
+    //         console.log(evt);
+    //       }
+    //       target.contentWindow.postMessage(
+    //         {
+    //           type: "contextMenuClicked",
+    //           uuid: msg.data.uuid,
+    //           origin: msg.data.origin,
+    //           menuItem: evt,
+    //         },
+    //         msg.origin
+    //       );
+    //     }
+    //   );
+    // }
   }
 });
 

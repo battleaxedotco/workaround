@@ -1,6 +1,6 @@
 {
   "name": "workaround",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "`evalScript` implementation to bypass CORS restrictions on new Adobe applications for use in `<iframe>` elements and bombino templates.",
   "main": "index.js",
   "scripts": {

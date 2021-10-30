@@ -32,7 +32,6 @@ async function evalScript(text, options) {
        * Can't just assume that localhost is the dev context, it may itself be an iframe within dev
        */
       if (DEBUG) {
-        console.log("What to do?");
         console.log(text);
         console.log(document.location.href);
       }
@@ -73,8 +72,8 @@ async function parentEvalScript(text, options) {
     window.addEventListener(
       "message",
       (parentReturn = (evt) => {
-        console.log(evt);
-        if (evt.data.uuid) {
+        if (DEBUG) console.log(evt);
+        if (evt.data.uuid && DEBUG) {
           console.log("MATCH:", evt.data.uuid == uuid);
         }
         if (
